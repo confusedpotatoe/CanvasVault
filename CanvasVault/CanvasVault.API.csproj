@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\CanvasVault.Application\CanvasVault.Application.csproj" />
     <ProjectReference Include="..\CanvasVault.Domain\CanvasVault.Domain.csproj" />
     <ProjectReference Include="..\CanvasVault.Infrastructure\CanvasVault.Infrastructure.csproj" />
