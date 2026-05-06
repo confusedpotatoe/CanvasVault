@@ -22,5 +22,12 @@ namespace CanvasVault.API.Controllers
 			var artworks = await _mediator.Send(query);
 			return Ok(artworks);
 		}
+
+		[HttpPost]
+		public async Task<IActionResult> CreateArtwork([FromBody] CreateArtworkCommand command)
+		{
+			var newArtworkId = await _mediator.Send(command);
+			return Ok(new { Message = "Artwork created successfully", ArtworkId = newArtworkId });
+		}
 	}
 }
