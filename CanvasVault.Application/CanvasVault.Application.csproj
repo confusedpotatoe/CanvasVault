@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CanvasVault.Domain\CanvasVault.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

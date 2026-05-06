@@ -1,6 +1,10 @@
-﻿namespace CanvasVault.Infrastructure.Repositories
+﻿using CanvasVault.Domain.Entities;
+using CanvasVault.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace CanvasVault.Infrastructure.Repositories
 {
-	public class ArtworkRepository
+	public class ArtworkRepository : IArtworkRepository
 	{
 
 		// The ArtworkRepository class is responsible for managing the data access operations related to the Artwork entity.
@@ -20,7 +24,7 @@
 		}
 
 		// Asynchronous method to retrieve a specific artwork by its unique identifier (Id).
-		public async Task<Artwork> GetByIdAsync(int id)
+		public async Task<Artwork?> GetByIdAsync(int id)
 		{
 			return await _context.Artworks.FindAsync(id);
 		}
