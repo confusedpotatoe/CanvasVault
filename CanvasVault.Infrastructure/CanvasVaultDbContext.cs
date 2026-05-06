@@ -1,6 +1,8 @@
-﻿namespace CanvasVault.Infrastructure
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace CanvasVault.Infrastructure
 {
-	public class CanvasVaultDbContext
+	public class CanvasVaultDbContext : DbContext
 	{
 		public CanvasVaultDbContext(DbContextOptions<CanvasVaultDbContext> options) : base(options)
 		{
