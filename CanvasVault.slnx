@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CanvasVault.Application/CanvasVault.Application.csproj" Id="ee40b1b4-1e08-4ea8-befc-067945736761" />
+  <Project Path="CanvasVault.Domain/CanvasVault.Domain.csproj" Id="609da02a-7e52-4be1-ba56-a4d1cf02d13f" />
+  <Project Path="CanvasVault.Infrastructure/CanvasVault.Infrastructure.csproj" Id="695cac4b-c955-45ae-8398-8a9d0fe9d744" />
+  <Project Path="CanvasVault/CanvasVault.API.csproj" Id="3897d90e-a102-4eea-89af-ad4b9f5afd18" />
+</Solution>
