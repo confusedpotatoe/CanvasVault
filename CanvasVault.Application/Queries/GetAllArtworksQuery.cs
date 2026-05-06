@@ -1,9 +1,6 @@
 ﻿using CanvasVault.Domain.Entities;
 using CanvasVault.Domain.Interfaces;
 using MediatR;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CanvasVault.Application.Queries
 {
@@ -30,12 +27,5 @@ namespace CanvasVault.Application.Queries
 		{
 			return await _artworkRepository.GetAllAsync();
 		}
-
-		//	Asynchronous method that handles the GetAllArtworksQuery and retrieves all artworks from the database using the IArtworkRepository.
-		//	This method is called by the MediatR library when a GetAllArtworksQuery is sent, and it returns an IEnumerable of Artwork objects.
-		public async Task<IEnumerable<Artwork>> Handle(GetAllArtworksQuery request, CancellationToken cancellationToken)
-		{
-			// Handlern anropar repositoryt i Infrastructure-lagret (via interfacet)
-			return await _artworkRepository.GetAllAsync();
-		}
 	}
+}
