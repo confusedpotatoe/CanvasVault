@@ -3,17 +3,18 @@ using MediatR;
 
 namespace CanvasVault.Application.Commands
 {
-	// 1. The Command
+	// 1. Själva kommandot: Innehåller bara ID:t på det konstverk vi vill ta bort
 	public class DeleteArtworkCommand : IRequest<bool>
 	{
 		public int Id { get; set; }
 	}
 
-	// 2. The Handler
+	// 2. Handlern: Tar emot kommandot och sköter logiken
 	public class DeleteArtworkCommandHandler : IRequestHandler<DeleteArtworkCommand, bool>
 	{
 		private readonly IArtworkRepository _repository;
 
+		// Injicera interfacet (från Domain-lagret)
 		public DeleteArtworkCommandHandler(IArtworkRepository repository)
 		{
 			_repository = repository;
@@ -21,20 +22,21 @@ namespace CanvasVault.Application.Commands
 
 		public async Task<bool> Handle(DeleteArtworkCommand request, CancellationToken cancellationToken)
 		{
-			// Use 'var' here because GetByIdAsync returns an Artwork, not a bool
+			// Steg 1: Leta upp konstverket i databasen med det inskickade ID:t. 
+			// Vi använder 'var' eftersom metoden returnerar ett Artwork.
 			var artworkToRemove = await _repository.GetByIdAsync(request.Id);
 
-			// Check if the object is 'null', not 'false'
+			// Steg 2: Kontrollera om konstverket faktiskt finns
 			if (artworkToRemove == null)
 			{
-				// We return a bool (false) here to tell the controller it failed
-				return false;
+				return false; // Hittades inte, returnera false
 			}
 
-			// Call the repository with the ID, perfectly matching your interface
+			// Steg 3: Om det hittades, anropa DeleteAsync i ditt repository.
+			// Här skickar vi in request.Id eftersom ditt IArtworkRepository kräver en int.
 			await _repository.DeleteAsync(request.Id);
 
-			// We return a bool (true) here to tell the controller it succeeded
+			// Return true för att indikera att borttagningen lyckades
 			return true;
 		}
 	}
