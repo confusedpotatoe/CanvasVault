@@ -21,6 +21,7 @@ namespace CanvasVault
 
 			// Register the ArtworkRepository for dependency injection
 			builder.Services.AddScoped<IArtworkRepository, ArtworkRepository>();
+			builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
 
 			builder.Services.AddControllers();
 			// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
