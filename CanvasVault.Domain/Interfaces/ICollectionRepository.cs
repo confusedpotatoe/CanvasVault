@@ -1,4 +1,6 @@
-﻿namespace CanvasVault.Domain.Interfaces
+﻿using CanvasVault.Domain.Entities;
+
+namespace CanvasVault.Domain.Interfaces
 {
 	public interface ICollectionRepository
 	{
