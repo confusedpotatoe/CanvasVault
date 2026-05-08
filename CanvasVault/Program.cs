@@ -1,3 +1,4 @@
+using CanvasVault.Application.Commands;
 using CanvasVault.Domain.Interfaces;
 using CanvasVault.Infrastructure;
 using CanvasVault.Infrastructure.Repositories;
@@ -18,6 +19,8 @@ namespace CanvasVault
 			// Configure Entity Framework Core with SQL Server
 			builder.Services.AddDbContext<CanvasVaultDbContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+			builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateCollectionCommand).Assembly));
 
 			// Register the ArtworkRepository for dependency injection
 			builder.Services.AddScoped<IArtworkRepository, ArtworkRepository>();
