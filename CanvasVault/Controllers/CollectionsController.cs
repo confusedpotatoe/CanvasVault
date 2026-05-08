@@ -1,4 +1,5 @@
 ﻿using CanvasVault.Application.Commands;
+using CanvasVault.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
