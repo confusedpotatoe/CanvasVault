@@ -1,9 +1,11 @@
 ﻿using CanvasVault.Domain.Entities;
+using CanvasVault.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace CanvasVault.Infrastructure.Repositories
 {
-	public class CollectionRepository
+	public class CollectionRepository : ICollectionRepository
 	{
 		private readonly CanvasVaultDbContext _context;
 
@@ -17,6 +19,13 @@ namespace CanvasVault.Infrastructure.Repositories
 			return await _context.Collections
 				.Include(c => c.Artworks)
 				.ToListAsync();
+		}
+
+		public async Task<Collection?> GetByIdAsync(int id)
+		{
+			return await _context.Collections
+				.Include(c => c.Artworks)
+				.FirstOrDefaultAsync(c => c.Id == id);
 		}
 
 		public async Task AddAsync(Collection collection)
