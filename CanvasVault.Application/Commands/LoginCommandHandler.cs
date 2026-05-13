@@ -16,21 +16,29 @@ namespace CanvasVault.Application.Commands
 		public async Task<LoginResponseDto> Handle(LoginCommand request, CancellationToken cancellationToken)
 		{
 			// For demonstration, we use hardcoded credentials. In a real application, validate against a user store.
-			if (request.Username == "admin" && request.Password == "password")
+			var roles = new List<string>();
+
+			if (request.Username.ToLower() == "admin")
 			{
-				var roles = new List<string> { "Admin" };
-				var token = _tokenService.CreateToken(request.Username, roles);
-				return new LoginResponseDto
-				{
-					Token = token,
-					Username = request.Username,
-					Roles = roles
-				};
+				roles.Add("Admin");
+				roles.Add("User");
 			}
 			else
 			{
-				throw new UnauthorizedAccessException("Invalid username or password.");
+				roles.Add("User");
 			}
+
+			// 2. Call the TokenService 
+			// Ensure your ITokenService.CreateToken method signature in the Domain layer 
+			// accepts (string username, List<string> roles)
+			var token = _tokenService.CreateToken(request.Username, roles);
+
+			// 3. Return the DTO
+			return new LoginResponseDto
+			{
+				Username = request.Username,
+				Token = token
+			};
 		}
 	}
 }

@@ -10,14 +10,19 @@ namespace CanvasVault.Infrastructure.Services
 	public class TokenService : ITokenService
 	{
 		private readonly IConfiguration _config;
-		public TokenService(IConfiguration config) => _config = config;
+		public TokenService(IConfiguration config)
+		{
+			_config = config;
+		}
 
 		public string CreateToken(string username, List<string> roles)
 		{
 			var claims = new List<Claim>
 			{
-				new Claim(ClaimTypes.Name, username)
+				new Claim(JwtRegisteredClaimNames.NameId, username),
+				new Claim(JwtRegisteredClaimNames.UniqueName, username)
 			};
+
 			foreach (var role in roles)
 			{
 				claims.Add(new Claim(ClaimTypes.Role, role));
@@ -25,12 +30,14 @@ namespace CanvasVault.Infrastructure.Services
 			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
 			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-			var tokenDescriptor = new SecurityTokenDescriptor(
+			var tokenDescriptor = new SecurityTokenDescriptor
+			{
 				Subject = new ClaimsIdentity(claims),
-				Expires = DateTime.Now.AddDays(7),
+				Expires = DateTime.Now.AddDays(1),
 				SigningCredentials = creds,
 				Issuer = _config["Jwt:Issuer"],
-				Audience = _config["Jwt:Audience"]);
+				Audience = _config["Jwt:Audience"]
+			};
 
 			var tokenHandler = new JwtSecurityTokenHandler();
 			return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
