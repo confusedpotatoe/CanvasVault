@@ -40,7 +40,9 @@ namespace CanvasVault.Infrastructure.Services
 			};
 
 			var tokenHandler = new JwtSecurityTokenHandler();
-			return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+			var token = tokenHandler.CreateToken(tokenDescriptor);
+
+			return tokenHandler.WriteToken(token);
 		}
 
 	}

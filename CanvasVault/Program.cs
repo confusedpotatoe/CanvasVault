@@ -1,10 +1,15 @@
+using CanvasVault.Application.Behaviors;
 using CanvasVault.Application.Queries;
 using CanvasVault.Domain.Interfaces;
 using CanvasVault.Infrastructure;
 using CanvasVault.Infrastructure.Repositories;
+using CanvasVault.Infrastructure.Services;
 using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 namespace CanvasVault
@@ -28,14 +33,14 @@ namespace CanvasVault
 			// We register the interface (Domain) with its implementation (Infrastructure)
 			builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
 			builder.Services.AddScoped<IArtworkRepository, ArtworkRepository>();
+			builder.Services.AddScoped<ITokenService, TokenService>();
 
 			// --- 4. MediatR Registration (Application Layer) 
 			builder.Services.AddMediatR(cfg =>
 			{
 				// This tells MediatR to look for Handlers in the Application project
 				cfg.RegisterServicesFromAssembly(typeof(GetAllCollectionsQuery).Assembly);
-
-				// cfg.AddOpenBehavior(typeof(ValidationBehavior<,>)); 
+				cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 			});
 
 			// Mapster Configuration
@@ -44,8 +49,23 @@ namespace CanvasVault
 			builder.Services.AddSingleton(config);
 			builder.Services.AddScoped<IMapper, ServiceMapper>();
 
-			//builder.Services.AddAuthentication().AddJwtBearer();
-			//builder.Services.AddAuthorization();
+			// --- 6. JWT Authentication & RBAC (VG Requirement) ---
+			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(options =>
+				{
+					options.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = builder.Configuration["Jwt:Issuer"],
+						ValidAudience = builder.Configuration["Jwt:Audience"],
+						IssuerSigningKey = new SymmetricSecurityKey(
+							Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+					};
+				});
+			builder.Services.AddAuthorization();
 
 			var app = builder.Build();
 
