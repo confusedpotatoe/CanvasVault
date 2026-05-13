@@ -2,7 +2,6 @@
 using CanvasVault.Domain.Interfaces;
 using MediatR;
 
-
 namespace CanvasVault.Application.Commands
 {
 	public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponseDto>
