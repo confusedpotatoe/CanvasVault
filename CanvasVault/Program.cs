@@ -9,10 +9,10 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
-
-namespace CanvasVault
+namespace CanvasVault.API
 {
 	public class Program
 	{
@@ -23,14 +23,43 @@ namespace CanvasVault
 			// Basic API Services
 			builder.Services.AddControllers();
 			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen(); // Required for API documentation
+
+			// Swagger Configuration
+			builder.Services.AddSwaggerGen(options =>
+			{
+				// Definiera säkerhetsschemat (JWT Bearer)
+				options.AddSecurityDefinition("Bearer", securityScheme: new OpenApiSecurityScheme
+				{
+					Name = "Authorization",
+					Type = SecuritySchemeType.Http,
+					Scheme = "Bearer",
+					BearerFormat = "JWT",
+					In = ParameterLocation.Header,
+					Description = "Skriv in din token här."
+				});
+
+				// Lägg till kravet på säkerhet globalt i Swagger UI
+				options.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
+					{
+						new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
+								Type = ReferenceType.SecurityScheme,
+								Id = "Bearer"
+							}
+						},
+						new List<string>()
+					}
+				});
+			});
 
 			// Database Configuration (Infrastructure Layer)
 			builder.Services.AddDbContext<CanvasVaultDbContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 			// Repository Registrations (Infrastructure -> Domain)
-			// We register the interface (Domain) with its implementation (Infrastructure)
 			builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
 			builder.Services.AddScoped<IArtworkRepository, ArtworkRepository>();
 			builder.Services.AddScoped<ITokenService, TokenService>();
@@ -38,13 +67,11 @@ namespace CanvasVault
 			// --- 4. MediatR Registration (Application Layer) 
 			builder.Services.AddMediatR(cfg =>
 			{
-				// This tells MediatR to look for Handlers in the Application project
 				cfg.RegisterServicesFromAssembly(typeof(GetAllCollectionsQuery).Assembly);
 				cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 			});
 
 			// Mapster Configuration
-			// Replacing AutoMapper with Mapster as requested to ensure entities aren't exposed 
 			var config = TypeAdapterConfig.GlobalSettings;
 			builder.Services.AddSingleton(config);
 			builder.Services.AddScoped<IMapper, ServiceMapper>();
@@ -72,7 +99,7 @@ namespace CanvasVault
 			//Configure the HTTP Request Pipeline 
 			if (app.Environment.IsDevelopment())
 			{
-				app.UseSwagger(); // Enabled and accessible at /swagger
+				app.UseSwagger();
 				app.UseSwaggerUI();
 			}
 

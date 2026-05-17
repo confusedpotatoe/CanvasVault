@@ -3,16 +3,28 @@ using MediatR;
 
 namespace CanvasVault.Application.Behaviors
 {
-	public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+	public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
 		where TRequest : IRequest<TResponse>
 	{
-		private readonly IEnumerable<IValidator<TRequest>> _validators;
-		public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+		private readonly IEnumerable<IValidator<TRequest>> _validators = validators;
+
+		public override bool Equals(object? obj)
 		{
-			_validators = validators;
+			return obj is ValidationBehavior<TRequest, TResponse> behavior &&
+				   EqualityComparer<IEnumerable<IValidator<TRequest>>>.Default.Equals(_validators, behavior._validators);
 		}
-		public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+
+		public override int GetHashCode()
 		{
+			return HashCode.Combine(_validators);
+		}
+
+		public async Task<TResponse> Handle(
+			TRequest request,
+			RequestHandlerDelegate<TResponse> next,
+			CancellationToken cancellationToken)
+		{
+			ArgumentNullException.ThrowIfNull(next);
 			if (_validators.Any())
 			{
 				var context = new ValidationContext<TRequest>(request);
