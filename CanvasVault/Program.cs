@@ -1,13 +1,18 @@
+using CanvasVault.Application.Behaviors;
 using CanvasVault.Application.Queries;
 using CanvasVault.Domain.Interfaces;
 using CanvasVault.Infrastructure;
 using CanvasVault.Infrastructure.Repositories;
+using CanvasVault.Infrastructure.Services;
 using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
-
-namespace CanvasVault
+namespace CanvasVault.API
 {
 	public class Program
 	{
@@ -15,52 +20,92 @@ namespace CanvasVault
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// --- 1. Basic API Services ---
+			// Basic API Services
 			builder.Services.AddControllers();
 			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen(); // Required for API documentation [4]
 
-			// --- 2. Database Configuration (Infrastructure Layer) [4] ---
+			// Swagger Configuration
+			builder.Services.AddSwaggerGen(options =>
+			{
+				// Definiera säkerhetsschemat (JWT Bearer)
+				options.AddSecurityDefinition("Bearer", securityScheme: new OpenApiSecurityScheme
+				{
+					Name = "Authorization",
+					Type = SecuritySchemeType.Http,
+					Scheme = "Bearer",
+					BearerFormat = "JWT",
+					In = ParameterLocation.Header,
+					Description = "Skriv in din token här."
+				});
+
+				// Lägg till kravet på säkerhet globalt i Swagger UI
+				options.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
+					{
+						new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
+								Type = ReferenceType.SecurityScheme,
+								Id = "Bearer"
+							}
+						},
+						new List<string>()
+					}
+				});
+			});
+
+			// Database Configuration (Infrastructure Layer)
 			builder.Services.AddDbContext<CanvasVaultDbContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-			// --- 3. Repository Registrations (Infrastructure -> Domain) [4, 5] ---
-			// We register the interface (Domain) with its implementation (Infrastructure)
+			// Repository Registrations (Infrastructure -> Domain)
 			builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
 			builder.Services.AddScoped<IArtworkRepository, ArtworkRepository>();
+			builder.Services.AddScoped<ITokenService, TokenService>();
 
-			// --- 4. MediatR Registration (Application Layer) [5] ---
+			// --- 4. MediatR Registration (Application Layer) 
 			builder.Services.AddMediatR(cfg =>
 			{
-				// This tells MediatR to look for Handlers in the Application project
 				cfg.RegisterServicesFromAssembly(typeof(GetAllCollectionsQuery).Assembly);
-
-				// For VG: This is where you would register your Pipeline Behaviors [6, 7]
-				// cfg.AddOpenBehavior(typeof(ValidationBehavior<,>)); 
+				cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 			});
 
-			// --- 5. Mapster Configuration (Application Layer - VG Requirement) [6] ---
-			// Replacing AutoMapper with Mapster as requested to ensure entities aren't exposed [6]
+			// Mapster Configuration
 			var config = TypeAdapterConfig.GlobalSettings;
 			builder.Services.AddSingleton(config);
 			builder.Services.AddScoped<IMapper, ServiceMapper>();
 
-			// --- 6. JWT Authentication (VG Requirement) [6, 7] ---
-			//builder.Services.AddAuthentication().AddJwtBearer();
-			//builder.Services.AddAuthorization();
+			// --- 6. JWT Authentication & RBAC (VG Requirement) ---
+			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(options =>
+				{
+					options.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = builder.Configuration["Jwt:Issuer"],
+						ValidAudience = builder.Configuration["Jwt:Audience"],
+						IssuerSigningKey = new SymmetricSecurityKey(
+							Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+					};
+				});
+			builder.Services.AddAuthorization();
 
 			var app = builder.Build();
 
-			// --- 7. Configure the HTTP Request Pipeline ---
+			//Configure the HTTP Request Pipeline 
 			if (app.Environment.IsDevelopment())
 			{
-				app.UseSwagger(); // Enabled and accessible at /swagger [4]
+				app.UseSwagger();
 				app.UseSwaggerUI();
 			}
 
 			app.UseHttpsRedirection();
 
-			// IMPORTANT FOR VG: Authentication must be called BEFORE Authorization [7]
+			//Authentication must be called BEFORE Authorization
 			app.UseAuthentication();
 			app.UseAuthorization();
 

@@ -1,12 +1,15 @@
 ﻿using CanvasVault.Application.Commands;
 using CanvasVault.Application.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CanvasVault.API.Controllers
 {
-	[Route("api/[controller]")]
 	[ApiController]
+	[Route("api/[controller]")]
+	[Authorize] // This attribute ensures that all endpoints in this controller require authentication
+
 	public class ArtworksController : ControllerBase
 	{
 		private readonly IMediator _mediator;
@@ -57,6 +60,7 @@ namespace CanvasVault.API.Controllers
 		// Asynchronous method that handles HTTP DELETE requests to delete an existing artwork from the database.
 		// The method takes an ID parameter from the URL, which is used to identify the artwork to be deleted.
 		[HttpDelete("{id}")]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteArtwork(int id)
 		{
 			var command = new DeleteArtworkCommand { Id = id };
