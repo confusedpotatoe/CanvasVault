@@ -55,6 +55,16 @@ namespace CanvasVault.API
 				});
 			});
 
+			builder.Services.AddCors(option =>
+			{
+				option.AddPolicy("allowFrontend", policy =>
+				{
+					policy.WithOrigins("http://localhost:5173")
+						.AllowAnyHeader()
+						.AllowAnyMethod();
+				});
+			});
+
 			// Database Configuration (Infrastructure Layer)
 			builder.Services.AddDbContext<CanvasVaultDbContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -104,6 +114,8 @@ namespace CanvasVault.API
 			}
 
 			app.UseHttpsRedirection();
+
+			app.UseCors("allowFrontend");
 
 			//Authentication must be called BEFORE Authorization
 			app.UseAuthentication();

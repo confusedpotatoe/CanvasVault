@@ -1,0 +1,105 @@
+:root {
+  --text: #c9d3c5;
+  --text-h: #f2f6ef;
+  --bg: #0c1610;
+  --border: #203124;
+  --code-bg: #132018;
+  --accent: rgba(8, 92, 0, 0.55);
+  --accent-bg: rgba(8, 92, 0, 0.18);
+  --accent-border: rgba(8, 92, 0, 0.55);
+  --social-bg: rgba(19, 32, 24, 0.72);
+  --shadow:
+    rgba(0, 0, 0, 0.28) 0 12px 24px -8px,
+    rgba(4, 15, 8, 0.24) 0 6px 12px -6px;
+
+  --sans: 'Segoe UI', 'Aptos', system-ui, sans-serif;
+  --heading: 'Segoe UI', 'Aptos', system-ui, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #c9d3c5;
+    --text-h: #f2f6ef;
+    --bg: #0c1610;
+    --border: #203124;
+    --code-bg: #132018;
+    --accent: rgba(8, 92, 0, 0.55);
+    --accent-bg: rgba(8, 92, 0, 0.18);
+    --accent-border: rgba(8, 92, 0, 0.55);
+    --social-bg: rgba(19, 32, 24, 0.72);
+    --shadow:
+      rgba(0, 0, 0, 0.28) 0 12px 24px -8px,
+      rgba(4, 15, 8, 0.24) 0 6px 12px -6px;
+  }
+}
+
+#root {
+  width: 100%;
+  min-height: 100svh;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--bg);
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: clamp(2.4rem, 4vw, 4.6rem);
+  line-height: 0.96;
+  letter-spacing: -0.06em;
+  margin: 0;
+  max-width: 12ch;
+  @media (max-width: 1024px) {
+    max-width: 14ch;
+  }
+}
+h2 {
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  margin: 0;
+  @media (max-width: 1024px) {
+    font-size: 1.4rem;
+  }
+}
+p {
+  margin: 0;
+}
+
+a,
+button,
+input {
+  font: inherit;
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+  color: var(--text-h);
+}
