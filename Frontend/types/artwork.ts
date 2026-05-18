@@ -1,4 +1,4 @@
-export interface artworkDto{
+export interface ArtworkDto{
     id: string;
     titel: string;
     artist: string;
